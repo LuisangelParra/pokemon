@@ -1,23 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { View, TextInput, FlatList, StyleSheet } from 'react-native';
-import { getPokemons, getPokemonDetails } from '../services/api';
+import { View, TextInput, FlatList, StyleSheet, Button } from 'react-native';
+import { getPokemons, getAllPokemons, getPokemonDetails } from '../services/api';
 import PokemonItem from '../components/PokemonItem';
 
 export default function HomeScreen({ navigation }) {
   const [search, setSearch] = useState('');
   const [pokemons, setPokemons] = useState([]);
   const [loadedPokemons, setLoadedPokemons] = useState([]);
+  const [visiblePokemons, setVisiblePokemons] = useState(20); // Número inicial de pokémones visibles
 
   useEffect(() => {
-    getPokemons().then(data => {
-      setPokemons(data.results);
-      loadPokemonDetails(data.results);
+    getAllPokemons().then(data => {
+      console.log(data);
+      setPokemons(data);
+      loadPokemonDetails(data);
     });
   }, []);
 
   const loadPokemonDetails = (pokemons) => {
     Promise.all(pokemons.map(pokemon => getPokemonDetails(pokemon.url)))
       .then(details => setLoadedPokemons(details));
+  };
+
+  const loadMorePokemons = () => {
+    setVisiblePokemons(prevVisiblePokemons => prevVisiblePokemons + 20); // Cargar 20 pokémones más
   };
 
   const filteredPokemons = loadedPokemons.filter(pokemon =>
@@ -33,15 +39,16 @@ export default function HomeScreen({ navigation }) {
         onChangeText={setSearch}
       />
       <FlatList
-        data={filteredPokemons}
+        data={filteredPokemons.slice(0, visiblePokemons)} // Mostrar solo los pokémones visibles
         keyExtractor={(item) => item.name}
         renderItem={({ item }) => (
           <PokemonItem
             pokemon={item}
-            onPress={() => navigation.navigate('PokemonDetail', { pokemon: item })}
+            onPress={() => navigation.navigate('PokemonDetail', { item })}
           />
         )}
       />
+      <Button title="Load More" onPress={loadMorePokemons} />
     </View>
   );
 }

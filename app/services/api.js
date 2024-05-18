@@ -17,3 +17,21 @@ export const getPokemonDetails = async (url) => {
     console.error('Error fetching pokemon details:', error);
   }
 };
+
+export const getAllPokemons = async () => {
+  try {
+    let allPokemons = [];
+    let nextUrl = 'https://pokeapi.co/api/v2/pokemon';
+    
+    while (nextUrl) {
+      const response = await fetch(nextUrl);
+      const data = await response.json();
+      allPokemons = [...allPokemons, ...data.results];
+      nextUrl = data.next;
+    }
+    
+    return allPokemons;
+  } catch (error) {
+    console.error('Error fetching pokemons:', error);
+  }
+};

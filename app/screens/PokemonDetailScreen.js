@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
-import { getPokemonDetails } from '../services/api';
 
 export default function PokemonDetailScreen({ route }) {
-  const { pokemon } = route.params;
-
+  const pokemon = route.params.item;
+  console.log(pokemon);
 
 
 
